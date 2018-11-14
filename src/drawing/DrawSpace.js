@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import { SketchPad, TOOL_PENCIL, TOOL_LINE, TOOL_RECTANGLE, TOOL_ELLIPSE }
   from 'react-sketchpad/lib';
+import PracticeCanvas from './PracticeCanvas'
 
-//Following the example here:
-//https://github.com/svrcekmichal/react-sketchpad/blob/master/example/SketchExample.jsx
 class DrawSpace extends Component {
   constructor(props) {
     super(props);
@@ -16,13 +15,16 @@ class DrawSpace extends Component {
     let items = [];
 
     this.state = {
+      roomKey: 100,
       tool: tool,
       size: size,
       color: color,
       fill: fill,
       fillColor: fillColor,
+    ///*
       rooms: [
         <SketchPad
+          roomKey={100}
           class="drawing-area"
           width={500}
           height={500}
@@ -34,6 +36,12 @@ class DrawSpace extends Component {
           tool={tool}
         />
       ]
+      //*/
+      /*
+      rooms: [
+        <p> TEST: Room Key, Origin: 99 </p>
+      ]
+      //*/
     }
 
     this.resetSketchpad = this.resetSketchpad.bind(this);
@@ -42,8 +50,10 @@ class DrawSpace extends Component {
   }
 
   resetSketchpad() {
+    let newKey = this.state.roomKey + 1
     let blankPad =
       <SketchPad
+        roomKey={newKey}
         class="drawing-area"
         width={500}
         height={500}
@@ -54,21 +64,25 @@ class DrawSpace extends Component {
         items={[]}
         tool={this.state.tool}
       />
+      let paragraph = <p>TEST Room key {this.state.roomKey}</p>
       this.setState(prevState =>
         ({
-          rooms: [...prevState.rooms, blankPad]
+          rooms: [...prevState.rooms, blankPad],
+          //rooms: [...prevState.rooms, paragraph],
+          //rooms: [blankPad],
+          roomKey: newKey
         })
       )
   }
 
   getCurrentRoom() {
-    //return this.state.rooms[this.state.rooms.length - 1]
-    return this.state.rooms[0];
+    return this.state.rooms[this.state.rooms.length - 1]
+    //return this.state.rooms[0];
   }
 
   getPreviousRooms() {
     let rooms = [];
-    for(let i=0; i<this.state.rooms.length - 1; i++) {
+    for(let i=this.state.rooms.length - 2; i>= 0; i--) {
       rooms.push(this.state.rooms[i])
     }
     return rooms;
@@ -82,9 +96,15 @@ class DrawSpace extends Component {
           <button onClick={this.resetSketchpad}>Save</button>
         </div>
         <div>
-          {this.getCurrentRoom()}
+          <h3>Testing Zone</h3>
+          <PracticeCanvas text="THE DUNGEON"/>
         </div>
         <div>
+        <h3>Current Room</h3>
+        {this.getCurrentRoom()}
+        </div>
+        <div>
+          <h3>Previous Rooms</h3>
           {this.getPreviousRooms()}
         </div>
       </div>
