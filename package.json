@@ -6,7 +6,7 @@
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-scripts": "2.1.1",
-    "react-sketchpad": "^0.0.3"
+    "react-sketchpad": "file:./../react-sketchpad"
   },
   "scripts": {
     "start": "react-scripts start",
