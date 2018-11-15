@@ -100,12 +100,14 @@ class DrawSpace extends Component {
           <PracticeCanvas text="THE DUNGEON"/>
         </div>
         <div>
+        {/*}
         <h3>Current Room</h3>
         {this.getCurrentRoom()}
         </div>
         <div>
           <h3>Previous Rooms</h3>
           {this.getPreviousRooms()}
+          */}
         </div>
       </div>
     )
