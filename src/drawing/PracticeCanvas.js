@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import graphPaper from '../images/graphPaper.PNG';
-import { Pencil } from 'react-sketchpad/lib/tools';
 
 class PracticeCanvas extends Component {
   constructor(props) {
