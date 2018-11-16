@@ -18,7 +18,7 @@ class PracticeCanvas extends Component {
     this.getRealCoordinates = this.getRealCoordinates.bind(this);
     this.clearCanvas = this.clearCanvas.bind(this);
 
-    this.initTool = this.initTool.bind(this);
+    //this.initTool = this.initTool.bind(this);
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     //this.onDebouncedMove = this.onDebouncedMove.bind(this);
@@ -30,15 +30,15 @@ class PracticeCanvas extends Component {
 
   componentDidMount() {
     const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
+    this.ctx = canvas.getContext("2d");
     const img = this.refs.image;
 
-    this.initTool(this.props.tool);
+    //this.initTool(this.props.tool);
 
     img.onload = () => {
-      ctx.drawImage(img, 0, 0);
-      ctx.font = "40px Courier";
-      ctx.fillText(this.props.text, 25, 35);
+      this.ctx.drawImage(img, 0, 0);
+      this.ctx.font = "40px Courier";
+      this.ctx.fillText(this.props.text, 25, 35);
     }
   }
 
@@ -54,12 +54,15 @@ class PracticeCanvas extends Component {
       }}
       onClick={ (event) => alert("Reloading older room... (jk)")}
     />
+
     this.setState( previousState => (
         {
           previousRooms: [...previousState.previousRooms, newImage]
         }
       )
     )
+
+    this.clearCanvas();
   }
 
   renderPreviousRooms() {
@@ -80,39 +83,68 @@ class PracticeCanvas extends Component {
     ];
   }
 
+  clearCanvas() {
+    //this.ctx.clearRect(0,0,canvas.width, canvas.height);
+    const img = this.refs.image;
+    this.ctx.drawImage(img, 0, 0);
+    this.ctx.font = "40px Courier";
+    this.ctx.fillText(this.props.text, 25, 35);
+  }
+
   drawLine() {
-    const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(500, 500);
-    //ctx.lineTo(...this.getRealCoordinates(500, 500));
-    ctx.stroke();
+    this.ctx.beginPath();
+    this.ctx.moveTo(0,0);
+    this.ctx.lineTo(500, 500);
+    //this.ctx.lineTo(...this.getRealCoordinates(500, 500));
+    this.ctx.stroke();
   }
 
   //this.refs.canvas.getBoundingClientRect()
 
   drawStuff() {
-    const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
-
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, 50);
-    ctx.lineTo(50, 50);
-    ctx.lineTo(50, 100);
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(0, 50);
+    this.ctx.lineTo(50, 50);
+    this.ctx.lineTo(50, 100);
     //ctx.arcTo(100, 100, 50, 105, 50)
-    ctx.stroke();
+    this.ctx.stroke();
   }
 
-  clearCanvas() {
-    const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
-    //ctx.clearRect(0,0,canvas.width, canvas.height);
-    const img = this.refs.image;
-    ctx.drawImage(img, 0, 0);
-    ctx.font = "40px Courier";
-    ctx.fillText(this.props.text, 25, 35);
+  onMouseDown(e) {
+    console.log("Mouse Down: " + this.getCursorPosition(e));
+    this.ctx.beginPath();
+    this.ctx.moveTo(...this.getCursorPosition(e));
+  }
+
+  onMouseUp(e) {
+    console.log("Mouse Up: " + this.getCursorPosition(e));
+    this.ctx.lineTo(...this.getCursorPosition(e));
+    this.ctx.stroke();
+  }
+
+  onMouseMove(e) {
+
+  }
+
+  onTouchStart(e){}
+  onTouchEnd(e){}
+  onTouchMove(e){}
+
+  getCursorPosition(e) {
+    const {top, left} = this.refs.canvas.getBoundingClientRect();
+    return [
+      e.clientX - left,
+      e.clientY - top
+    ];
+  }
+
+  getTouchPosition(touch) {
+    const {top, left} = this.refs.canvas.getBoundingClientRect();
+    return [
+      touch.clientX - left,
+      touch.clientY - top
+    ]
   }
 
   render() {
@@ -120,7 +152,7 @@ class PracticeCanvas extends Component {
     return (
       <div>
         <div>
-          <button onClick={this.saveRoom}>Nemo touched the button</button>
+          <button onClick={this.saveRoom}>Leave Room</button>
           <button onClick={this.drawLine}>Draw a line</button>
           <button onClick={this.drawStuff}>Draw other stuff</button>
           <button onClick={this.clearCanvas}>Clear</button>
@@ -131,7 +163,9 @@ class PracticeCanvas extends Component {
             ref="canvas"
             width={500}
             height={500}
-
+            onMouseDown={this.onMouseDown}
+            onMouseMove={this.onMouseMove}
+            onMouseUp={this.onMouseUp}
           />
           <img ref="image"
             src={graphPaper}
@@ -140,11 +174,13 @@ class PracticeCanvas extends Component {
           />
         </div>
         <div>
+          <h3>Previous Rooms</h3>
           {this.renderPreviousRooms()}
         </div>
       </div>
     )
   }
+}
 
   /*
               onMouseDown={this.onMouseDown}
@@ -162,83 +198,6 @@ class PracticeCanvas extends Component {
   to fit this application.
 */
 
-  initTool(tool) {
-    const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
-    this.tool = Pencil(this.ctx);
-  }
 
-  onMouseDown(e) {
-    const data = this.tool.onMouseDown(...this.getCursorPosition(e), this.props.color, this.props.size, this.props.fillColor);
-    data && data[0] && this.props.onItemStart && this.props.onItemStart.apply(null, data);
-  //  if (this.props.onDebouncedItemChange) {
-  //    this.interval = setInterval(this.onDebouncedMove, this.props.debounceTime);
-  //  }
-  }
-
-  onTouchStart(e) {
-    let firstTouch = e.targetTouches[0];
-    const data = this.tool.onMouseDown(...this.getTouchPosition(firstTouch), this.props.color, this.props.size, this.props.fillColor);
-    //if (this.props.onDebouncedItemChange) {
-    //  this.interval = setInterval(this.onDebouncedMove, this.props.debounceTime);
-    //}
-    //e.preventDefault();
-  }
-
-/*
-  onDebouncedMove() {
-    if (typeof this.tool.onDebouncedMouseMove == 'function' && this.props.onDebouncedItemChange) {
-      this.props.onDebouncedItemChange.apply(null, this.tool.onDebouncedMouseMove());
-    }
-  }
-*/
-  onMouseMove(e) {
-    const data = this.tool.onMouseMove(...this.getCursorPosition(e));
-    data && data[0] && this.props.onEveryItemChange && this.props.onEveryItemChange.apply(null, data);
-  }
-
-  onTouchMove(e) {
-    let firstTouch = e.targetTouches[0];
-    const data = this.tool.onMouseMove(...this.getTouchPosition(firstTouch));
-    //data && data[0] && this.props.onEveryItemChange && this.props.onEveryItemChange.apply(null, data);
-    //e.preventDefault();
-  }
-
-  onMouseUp(e) {
-    const data = this.tool.onMouseUp(...this.getCursorPosition(e));
-    data && data[0] && this.props.onCompleteItem && this.props.onCompleteItem.apply(null, data);
-    //if (this.props.onDebouncedItemChange) {
-    //  clearInterval(this.interval);
-    //  this.interval = null;
-    //}
-  }
-
-  onTouchEnd(e) {
-    let firstTouch = e.changedTouches[0];
-    const data = this.tool.onMouseUp(...this.getTouchPosition(firstTouch));
-    data && data[0] && this.props.onCompleteItem && this.props.onCompleteItem.apply(null, data);
-    //if (this.props.onDebouncedItemChange) {
-  //    clearInterval(this.interval);
-  //    this.interval = null;
-  //  }
-    //e.preventDefault();
-  }
-
-  getCursorPosition(e) {
-    const {top, left} = this.refs.canvas.getBoundingClientRect();
-    return [
-      e.clientX - left,
-      e.clientY - top
-    ];
-  }
-
-  getTouchPosition(touch) {
-    const {top, left} = this.refs.canvas.getBoundingClientRect();
-    return [
-      touch.clientX - left,
-      touch.clientY - top
-    ]
-  }
-}
 
 export default PracticeCanvas;
